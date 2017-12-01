@@ -93,16 +93,22 @@ def color_selection(sample, sample_error, verbose=True):
             i.e., only i < 20.2. Identical to `QSO_GRIZ_PHOT`.
 
         'QSO_GRIZ' :
-            Boolean array of pure `griz` color selection.
+            Boolean array of full `griz` color selection.
 
         'QSO_UGRI' :
-            Boolean array of pure `ugri` color selection.
+            Boolean array of full `ugri` color selection.
 
         'QSO_GRIZ_PHOT' :
             Boolean array of griz i<20.2 criterion only.
 
         'QSO_UGRI_PHOT' :
             Boolean array of ugri i<19.1 criterion only.
+
+        'QSO_GRIZ_COLOR' :
+            Boolean array of pure griz color criterion only.
+
+        'QSO_UGRI_COLOR' :
+            Boolean array of pure ugri color criterion only.
 
         'REJECT' :
             Boolean array of targets fulfilling the rejection criteria.
@@ -265,8 +271,11 @@ def color_selection(sample, sample_error, verbose=True):
     ugr_red1 *= i_mag - z_mag > -1.0
     ugr_red1 *= (g_mag - r_mag < 0.44*(u_mag - g_mag) - 0.56)
 
-    ugr_red2 = u_err < 0.2
+    # ugri outliers from the stellar locus can be selected in griz if:
+    ugr_red2 = is_quasar.copy()
+    ugr_red2[~reject] = ~in_ugri
     ugr_red2 *= u_err < 0.2
+    ugr_red2 *= g_err < 0.2
     ugr_red2 *= u_mag - g_mag > 1.5
 
     ugr_red = ugr_red1 + ugr_red2
@@ -287,8 +296,10 @@ def color_selection(sample, sample_error, verbose=True):
     output['QSO_FULL'] = is_quasar_full
     output['QSO_COLOR'] = is_quasar_col
     output['QSO_PHOT'] = is_quasar_phot
-    output['QSO_GRIZ'] = griz_cand
-    output['QSO_UGRI'] = ugri_cand
+    output['QSO_GRIZ'] = griz_cand_magcut
+    output['QSO_UGRI'] = ugri_cand_magcut
+    output['QSO_GRIZ_COLOR'] = griz_cand
+    output['QSO_UGRI_COLOR'] = ugri_cand
     output['QSO_GRIZ_PHOT'] = griz_mag_cut
     output['QSO_UGRI_PHOT'] = ugri_mag_cut
     output['REJECT'] = reject
