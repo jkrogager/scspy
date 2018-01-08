@@ -219,7 +219,7 @@ def color_selection(sample, sample_error, verbose=True):
     midz_qso = midz_selected == 1
     if np.sum(midz_qso) > 10:
         qso_subset = midz_selected[midz_qso]
-        random10 = np.random.choice(len(qso_subset), len(qso_subset)/10)
+        random10 = np.random.choice(len(qso_subset), len(qso_subset)/10, replace=False)
         qso_subset[:] = 0
         qso_subset[random10] = 1
         midz_selected[midz_qso] = qso_subset
