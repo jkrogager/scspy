@@ -170,7 +170,7 @@ def project_point_to_plane(c, k, o):
     return p_ij
 
 
-def generate_inv_covariance_matrix(a_l, a_m, theta):
+def generate_covariance_matrix(a_l, a_m, theta):
     """
     The locus cross-section at each locus point is defined as an ellipse
     in the (i,j) plane with major axis, a_l, and minor axis, a_m. The (l,m) basis
@@ -196,20 +196,20 @@ def generate_inv_covariance_matrix(a_l, a_m, theta):
     Returns
     -------
     A : (2x2) matrix
-        The inverse covariance matrix of the ellipse in the (i,j) plane.
+        The covariance matrix of the ellipse in the (i,j) plane.
 
     """
     # -- Use algebraic expansion:
     #    Average speed is 69.8 µs/call
-    # a = (np.cos(theta)/a_l)**2 + (np.sin(theta)/a_m)**2
-    # b = np.sin(2*theta)*(1./(2*a_l**2) - 1./(2*a_m**2))
-    # c = (np.sin(theta)/a_l)**2 + (np.cos(theta)/a_m)**2
+    # a = (np.cos(theta)*a_l)**2 + (np.sin(theta)*a_m)**2
+    # b = np.sin(2*theta)*(a_l**2/(2.) - a_m**2/(2.))
+    # c = (np.sin(theta)*a_l)**2 + (np.cos(theta)*a_m)**2
     # A = np.array([[a, b], [b, c]])
 
     # -- Use matrix representation:
     #    Average speed is 60.6 µs/call
     R = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
-    C = np.array([[1./a_l**2, 0.], [0., 1./a_m**2]])
+    C = np.array([[a_l**2, 0.], [0., a_m**2]])
     A = R.dot(C).dot(R.T)
     return A
 
