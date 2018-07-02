@@ -1,3 +1,11 @@
+# -*- coding: UTF-8 -*-
+"""
+This module contains supporting functions for the SDSS stellar locus algorithm.
+
+The functions related to the projection of ellipsoids are taken from
+`Algorithms for Ellipsoids` by Stephen B. Pope (2008), Cornell University Report FDA-08-01.
+"""
+
 import numpy as np
 from numpy.linalg import norm, inv, cholesky
 
@@ -8,7 +16,7 @@ z = np.array([0, 0, 1])
 
 
 def find_nearest_locus_point(c, O):
-    """Look up the nearest locus point.
+    """Look up the nearest locus point with minimum Euclidean distance.
 
     Input
     -----
@@ -191,16 +199,53 @@ def generate_inv_covariance_matrix(a_l, a_m, theta):
         The inverse covariance matrix of the ellipse in the (i,j) plane.
 
     """
-    a = 0.5*(np.cos(theta)/a_l)**2 + 0.5*(np.sin(theta)/a_m)**2
-    b = -np.sin(2*theta)/(4*a_l**2) + np.sin(2*theta)/(4*a_m**2)
-    c = 0.5*(np.sin(theta)/a_l)**2 + 0.5*(np.cos(theta)/a_m)**2
+    # -- Use algebraic expansion:
+    #    Average speed is 69.8 µs/call
+    # a = (np.cos(theta)/a_l)**2 + (np.sin(theta)/a_m)**2
+    # b = np.sin(2*theta)*(1./(2*a_l**2) - 1./(2*a_m**2))
+    # c = (np.sin(theta)/a_l)**2 + (np.cos(theta)/a_m)**2
+    # A = np.array([[a, b], [b, c]])
 
-    A = np.array([[a, b], [b, c]])
-
+    # -- Use matrix representation:
+    #    Average speed is 60.6 µs/call
+    R = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
+    C = np.array([[1./a_l**2, 0.], [0., 1./a_m**2]])
+    A = R.dot(C).dot(R.T)
     return A
 
 
-def point_in_ellipse(p, A, c=0.):
+def point_in_ellipse(p, A, c=None):
+    """
+    Test if the given point `p` is within the ellipse (or ellipsoid) given by
+    the matrix `A` centred at the position `c`.
+
+    Input
+    -----
+    p : array (N)
+        Point to test in N dimensions.
+
+    A : (NxN) matrix
+        The inverse covariance matrix of the ellipse (or ellipsoid) in N
+        dimensions.
+
+    c : array (N), [default: None]
+        Center of the ellipse (or ellipsoid) in N dimensions.
+        By default the center will be set to 0.
+
+    Returns
+    -------
+    bool :
+        True if the point is within the ellipse, else False.
+    """
+    if c is not None:
+        x = p - c
+    else:
+        x = p
+    r = np.sqrt((x.T).dot(A).dot(x))
+    return r <= 1.
+
+
+def point_in_ellipse_old(p, A, c=0.):
     """
     Test if the given point `p` is within the ellipse (or ellipsoid) given by
     the matrix `A` centred at the position `c`.

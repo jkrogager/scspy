@@ -1,55 +1,16 @@
 # -*- coding: UTF-8 -*-
+"""
+This module runs the SDSS color selection algorithm on input photometry
+in the 5-filter SDSS system (u, g, r, i, z). Input magnitudes are assumed
+to be corrected for Galactic extinction.
+"""
+
+__author__ = 'Jens-Kristian Krogager'
+__version__ = '1.0'
+
 import numpy as np
+
 from locus_selection import run_locus_selection
-
-"""
-    Calculate the detection probability in given bins of z_abs, NHI, Av parameter space
-    for various quasar redshifts.
-
-    call with argument EXT_LAW:
-    > python zAv_full_selection2.py  EXT_LAW
-"""
-
-
-def get_color_vector(mag, err):
-    """Return the 4-color vector from 5-point photometry"""
-    colors = np.array([mag[i] - mag[i+1] for i in range(len(mag)-1)])
-    errors = np.array([np.sqrt(err[i]**2 + err[i+1]**2) for i in range(len(mag)-1)])
-    return colors, errors
-
-
-# Parameters from noise locus fitting
-# One row corresponds to one filter (u,g,r,i,z)
-P_noise = np.array([[-1.282e-03, 1.0097e-01, -2.933, 3.7432e+01, -1.793e+02],
-                    [-1.079e-03, 8.9617e-02, -2.736, 3.6587e+01, -1.830e+02],
-                    [-7.049e-04, 6.0503e-02, -1.880, 2.5347e+01, -1.276e+02],
-                    [-9.142e-04, 7.5581e-02, -2.276, 2.9835e+01, -1.461e+02],
-                    [-7.840e-04, 5.6493e-02, -1.472, 1.6558e+01, -6.978e+01]])
-
-
-def noise_function(mag):
-    """
-    Calculate one sigma uncertainty on magnitudes from polynomial fit to mag-sigma distribution.
-    The distribution is fitted in terms of mag vs. log10(sigma).
-    """
-    sigma = np.zeros_like(mag)
-    sigma_lower = np.zeros(5)
-    sigma_upper = np.zeros(5)
-    order = 4
-    for i in range(order+1):
-        sigma += P_noise.T[i] * mag**(order-i)
-
-    for j in range(5):
-        sigma_lower[j] = np.poly1d(P_noise[j])(14.0)
-        sigma_upper[j] = np.poly1d(P_noise[j])(22.5)
-
-        # Check for outliers:
-        high = mag[:, j] > 22.5
-        low = mag[:, j] < 14.0
-        sigma[:, j][high] = sigma_upper[j]
-        sigma[:, j][low] = sigma_lower[j]
-
-    return 10**sigma
 
 
 def color_selection(sample, sample_error, verbose=True):
@@ -120,14 +81,12 @@ def color_selection(sample, sample_error, verbose=True):
     sample = np.array(sample)
     sample_error = np.array(sample_error)
 
-    colors, errors = get_color_vector(sample.T, sample_error.T)
-
     # For ugri, use first 3 colors:
-    ugri_points = colors.T[:, :3]
-    ugri_errors = errors.T[:, :3]
+    ugri_points = sample[:, :4]
+    ugri_errors = sample_error[:, :4]
     # For griz, use last 3 colors:
-    griz_points = colors.T[:, 1:]
-    griz_errors = errors.T[:, 1:]
+    griz_points = sample[:, 1:]
+    griz_errors = sample_error[:, 1:]
 
     # Unpack separate bands and errors:
     u_mag = sample[:, 0]
@@ -138,12 +97,12 @@ def color_selection(sample, sample_error, verbose=True):
 
     u_err = sample_error[:, 0]
     g_err = sample_error[:, 1]
-    r_err = sample_error[:, 2]
+    # r_err = sample_error[:, 2]
     i_err = sample_error[:, 3]
-    z_err = sample_error[:, 4]
+    # z_err = sample_error[:, 4]
 
     # Container for target rejection:
-    # targets start out as TRUE and if they fail a criterion they are turned to FAIL
+    # targets start out as TRUE and if they fail a criterion they are turned to FALSE
     N_targets = len(u_mag)
     is_quasar = np.ones(N_targets, dtype=bool)
 
@@ -158,11 +117,6 @@ def color_selection(sample, sample_error, verbose=True):
 
     # ==========================================================================
     # --- EXCLUSION REGIONS:
-
-    # griz exclusion region:
-    griz_ex = g_mag - r_mag < 1.0
-    griz_ex *= (u_mag - g_mag >= 0.8)
-    griz_ex *= (i_mag >= 19.1) + (u_mag - g_mag < 2.5)
 
     # white dwarf exclusion region:
     WD_ex = (u_mag - g_mag > -0.8) * (u_mag - g_mag < 0.7)
@@ -193,8 +147,8 @@ def color_selection(sample, sample_error, verbose=True):
 
     # not in ugri stellar locus (4 sigma)
     in_ugri = run_locus_selection(ugri_points[~reject], ugri_errors[~reject],
-                                  N_err=4, locus='ugri')
-    in_ugri = np.array(in_ugri, dtype=bool)
+                                  locus='ugri')
+    # in_ugri = np.array(in_ugri, dtype=bool)
     ugri_cand[~reject] = ~in_ugri
 
     # or in UVX box:
@@ -211,8 +165,8 @@ def color_selection(sample, sample_error, verbose=True):
     midz_in *= ~reject
 
     in_2sig_ugri = run_locus_selection(ugri_points[midz_in], ugri_errors[midz_in],
-                                       N_err=2, locus='ugri')
-    in_2sig_ugri = np.array(in_2sig_ugri, dtype=bool)
+                                       midz=True, locus='ugri')
+    # in_2sig_ugri = np.array(in_2sig_ugri, dtype=bool)
     midz_selected = ~in_2sig_ugri
 
     # Select only 10% of the objects in this region:
@@ -224,6 +178,8 @@ def color_selection(sample, sample_error, verbose=True):
         qso_subset[random10] = 1
         midz_selected[midz_qso] = qso_subset
         ugri_cand[midz_in] = midz_selected
+    else:
+        ugri_cand[midz_in] = False
 
     # magnitude criteria 15 < i < 19.1:
     ugri_mag_cut = (i_mag > 15.0) * (i_mag < 19.1)
@@ -235,8 +191,8 @@ def color_selection(sample, sample_error, verbose=True):
 
     # not in griz stellar locus (4 sigma)
     in_griz = run_locus_selection(griz_points[~reject], griz_errors[~reject],
-                                  N_err=4, locus='griz')
-    in_griz = np.array(in_griz, dtype=bool)
+                                  locus='griz')
+    # in_griz = np.array(in_griz, dtype=bool)
     griz_cand[~reject] = ~in_griz
 
     # reject low-z interlopers:
@@ -283,7 +239,7 @@ def color_selection(sample, sample_error, verbose=True):
 
     # magnitude criteria 15 < i < 20.2:
     griz_mag_cut = (i_mag < 20.2) * (i_mag > 15.0)
-    griz_cand_magcut = griz_cand * griz_mag_cut
+    griz_cand_magcut = griz_cand * ~lowz_rej * griz_mag_cut
     # ==========================================================================
 
     # Combine candidates from ugri and griz selections:
