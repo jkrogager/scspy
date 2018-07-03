@@ -21,6 +21,14 @@ def get_color_vector(mag, err):
     return colors, errors
 
 
+# --- Load Stellar Loci:
+# Table format:
+# (0)  (1)  (2)  (3)   (4)   (5)    (6)    (7)    (8)    (9)   (10)   (11)
+# i     k    N   u-g   g-r   r-i   k_ug   k_gr   k_ri     a     b    theta
+ugri_locus_pars = np.loadtxt(root_path+'/ugri_table_Richards2002.dat')
+griz_locus_pars = np.loadtxt(root_path+'/griz_table_Richards2002.dat')
+
+
 def run_locus_selection(photometry, errors, midz=False, locus='ugri'):
     """
     Test whether input colors are inside the stellar locus defined
@@ -67,12 +75,8 @@ def run_locus_selection(photometry, errors, midz=False, locus='ugri'):
         err_msg = "Wrong input dimensions: %r"
         raise ValueError(err_msg % phot.shape)
 
-    # --- Load ugri Stellar Locus:
-    # Table format:
-    # (0)  (1)  (2)  (3)   (4)   (5)    (6)    (7)    (8)    (9)   (10)   (11)
-    # i     k    N   u-g   g-r   r-i   k_ug   k_gr   k_ri     a     b    theta
     if locus.lower() == 'ugri':
-        locus_pars = np.loadtxt(root_path+'/ugri_table_York2002.dat')
+        locus_pars = ugri_locus_pars.copy()
         # these are set manually for ugri and griz:
         a_k = 0.2
         k_end = -0.05
@@ -82,7 +86,7 @@ def run_locus_selection(photometry, errors, midz=False, locus='ugri'):
             a_k /= 2.
 
     elif locus.lower() == 'griz':
-        locus_pars = np.loadtxt(root_path+'/griz_table_York2002.dat')
+        locus_pars = griz_locus_pars.copy()
         # these are set manually for ugri and griz:
         a_k = 0.5
         k_end = -0.3

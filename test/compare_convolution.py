@@ -26,7 +26,7 @@ locus = 'griz'
 
 # -- Load locus parameters:
 # i     k       N      u-g     g-r     r-i    k_ug    k_gr    k_ri      a       b      theta
-griz = np.loadtxt('../%s_table_York2002.dat' % locus)
+griz = np.loadtxt('../%s_table_Richards2002.dat' % locus)
 dk = griz[:, 1]
 x, y, z = griz[:, 3], griz[:, 4], griz[:, 5]
 k1 = griz[:, 6]

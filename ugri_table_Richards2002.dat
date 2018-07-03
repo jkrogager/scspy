@@ -28,6 +28,6 @@
 # (10) the major axis;
 # (11) the minor axis;
 # (12) the position angle (in radians) of the ellipse fit to the cross section of the stellar locus.
-# See Newberg & Yanny 1997 for more details. 
+# See Newberg & Yanny 1997 for more details.
 #
-# Table 3 of York et al. 2002
+# Table 3 of Richards et al. 2002
