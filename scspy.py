@@ -81,10 +81,10 @@ def color_selection(sample, sample_error, verbose=True):
     sample = np.array(sample)
     sample_error = np.array(sample_error)
 
-    # For ugri, use first 3 colors:
+    # For ugri, use first 4 filters:
     ugri_points = sample[:, :4]
     ugri_errors = sample_error[:, :4]
-    # For griz, use last 3 colors:
+    # For griz, use last 4 filters:
     griz_points = sample[:, 1:]
     griz_errors = sample_error[:, 1:]
 
@@ -197,7 +197,11 @@ def color_selection(sample, sample_error, verbose=True):
 
     # reject low-z interlopers:
     lowz_rej = g_mag - r_mag < 1.0
-    lowz_rej *= u_mag - g_mag >= 0.8
+    # The description of et al. (2002) incorrectly states criterion B
+    # of the low-redshift exclusion region:
+    # lowz_rej *= u_mag - g_mag >= 0.8
+    # corrected criterion:
+    lowz_rej *= u_mag - g_mag <= 0.8
     lowz_rej *= (i_mag >= 19.1) + (u_mag - g_mag < 2.5)
     griz_cand = griz_cand*~lowz_rej
 

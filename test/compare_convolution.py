@@ -88,10 +88,10 @@ inv_cov = np.linalg.inv(cov)
 # Project data point to locus-plane:
 A_ij = lt.project_ellipsoid_to_plane(inv_cov, k)
 
-S_ij = lt.generate_inv_covariance_matrix(a_l, a_m, theta)
+S = lt.generate_covariance_matrix(a_l, a_m, theta)
 
 # convolve A_ij and S_ij:
-C_ij = np.linalg.inv(A_ij) + np.linalg.inv(S_ij)
+C_ij = np.linalg.inv(A_ij) + S
 
 # get new eigen values and eigen vectors
 eigvals, eigvecs = np.linalg.eig(C_ij)
