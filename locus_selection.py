@@ -57,7 +57,6 @@ def run_locus_selection(photometry, errors, midz=False, locus='ugri'):
         The array will be `True` if the target is inside the stellar locus
         convolved by 4 times the `errors`.
     """
-    N_err = 4.
 
     phot = np.array(photometry)
     errors = np.array(errors)
@@ -84,12 +83,14 @@ def run_locus_selection(photometry, errors, midz=False, locus='ugri'):
             locus_pars[:, 9] /= 2.
             locus_pars[:, 10] /= 2.
             a_k /= 2.
+        N_err = 4.
 
     elif locus.lower() == 'griz':
         locus_pars = griz_locus_pars.copy()
         # these are set manually for ugri and griz:
         a_k = 0.5
         k_end = -0.3
+        N_err = 4.
     locus_points = locus_pars[:, 3:6]
 
     in_locus = list()

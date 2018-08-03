@@ -26,7 +26,7 @@ and then the function `color_selection()` can be run as follows:
 
 The output variable `qso_cand` is a dictionary containing arrays of
 shape (N) for N targets where each array gives details of the color
-selection tags. The dictionary keys are as follows:
+selection tags for each target. The dictionary keys are as follows:
 
         'QSO_FULL' :
             Boolean array of full combined ugri and griz selection.
