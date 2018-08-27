@@ -195,29 +195,29 @@ def color_selection(sample, sample_error, verbose=True):
     # in_griz = np.array(in_griz, dtype=bool)
     griz_cand[~reject] = ~in_griz
 
-    ## reject low-z interlopers:
-    ## The description of et al. (2002) incorrectly states the criteria
-    ## of the low-redshift exclusion region:
-    # lowz_rej = g_mag - r_mag < 1.0
+    # reject low-z interlopers:
+    # The description of et al. (2002) incorrectly states the criteria
+    # of the low-redshift exclusion region:
+    # lowz_rej = u_mag - g_mag <= 0.8
     # lowz_rej *= u_mag - g_mag >= 0.8
-    # lowz_rej *= ((i_mag >= 19.1) + (u_mag - g_mag < 2.5))
+    # lowz_rej *= g_mag - r_mag < 1.0
 
-    ## From Gordon Richards, priv comm.:
+    # From Gordon Richards, priv comm.:
     # lowz_rej = g_mag - r_mag < 1.0
     # low_rej1 = (u_mag - g_mag < 0.8) * (i_mag >= 19.1)
     # low_rej1 += (u_mag - g_mag >= 0.8)*(u_mag - g_mag < 2.5)
     # lowz_rej *= low_rej1
 
-    ## Reconstruction from color-color space:
-    lowz_rej1 = (u_mag - g_mag <= 0.6) * (g_mag - r_mag > 0.5*(u_mag - g_mag) + 0.15) * (g_mag - r_mag < 1.0)
+    # Reconstruction from color-color space:
+    lowz_rej1 = (u_mag - g_mag <= 0.8) * (g_mag - r_mag > 0.5*(u_mag - g_mag) + 0.15) * (g_mag - r_mag < 1.0)
     lowz_rej3 = (u_mag - g_mag <= 0.6) * (i_mag >= 19.1) * (g_mag - r_mag < 1.0)
     lowz_rej = lowz_rej1 + lowz_rej3
 
     griz_cand = griz_cand * ~lowz_rej
 
-    ## The only way to get the right number of targets
-    ## is through randomly discarding targets:
-    ## Only select 1 in 5:
+    # The only way to get the right number of targets
+    # is through randomly discarding targets:
+    # Only select 1 in 5:
     ug = u_mag - g_mag
     if np.sum(griz_cand*(i_mag < 19.1)*(ug < 0.8)) > 0:
         N_subset = int(len((griz_cand*(i_mag < 19.1)*(ug < 0.8)).nonzero()[0])*0.2)
@@ -225,7 +225,7 @@ def color_selection(sample, sample_error, verbose=True):
         griz_cand[(i_mag < 19.1)*(ug < 0.8)] = False
         griz_cand[subset] = True
 
-    ## or in gri inclusion for z>3.6; (6) of Richards et al. 2002
+    # or in gri inclusion for z>3.6; (6) of Richards et al. 2002
     gri_in = i_err < 0.2
     gri_in *= (u_mag - g_mag > 1.5) + (u_mag > 20.6)
     gri_in *= g_mag - r_mag > 0.7
@@ -234,7 +234,7 @@ def color_selection(sample, sample_error, verbose=True):
     gri_in *= i_mag - z_mag > -1.0
     griz_cand = griz_cand + gri_in * ~reject
 
-    ## riz inclusion for z>4.5; (7) of Richards et al. 2002
+    # riz inclusion for z>4.5; (7) of Richards et al. 2002
     riz_in = i_err < 0.2
     riz_in *= u_mag > 21.5
     riz_in *= g_mag > 21.0
@@ -243,7 +243,7 @@ def color_selection(sample, sample_error, verbose=True):
     riz_in *= (i_mag - z_mag < 0.52*(r_mag - i_mag) - 0.412)
     griz_cand = griz_cand + riz_in * ~reject
 
-    ## ugr red outliers for z>3.0; (8) of Richards et al. 2002
+    # ugr red outliers for z>3.0; (8) of Richards et al. 2002
     ugr_red1 = u_mag > 20.6
     ugr_red1 *= u_mag - g_mag > 1.5
     ugr_red1 *= g_mag - r_mag < 1.2
@@ -251,7 +251,7 @@ def color_selection(sample, sample_error, verbose=True):
     ugr_red1 *= i_mag - z_mag > -1.0
     ugr_red1 *= (g_mag - r_mag < 0.44*(u_mag - g_mag) - 0.56)
 
-    ## ugri outliers from the stellar locus can be selected in griz if:
+    # ugri outliers from the stellar locus can be selected in griz if:
     ugr_red2 = is_quasar.copy()
     ugr_red2[~reject] = ~in_ugri
     ugr_red2 *= u_err < 0.2
