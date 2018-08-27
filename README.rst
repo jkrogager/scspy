@@ -52,11 +52,11 @@ selection tags for each target. The dictionary keys are as follows:
             Boolean array of targets fulfilling the rejection criteria.
             These are made up by white dwarf, A-star and red-blue pair
             exclusion regions. See Richards et al. 2002.
-<<<<<<< HEAD
 
 |
+|
 
-.. warning::
+.. note::
 
     The `griz` selection branch currently suffers from some uncertainty
     due to an error in the low-redshift rejection criteria as stated in
@@ -69,5 +69,3 @@ selection tags for each target. The dictionary keys are as follows:
     selection are reverse-engineered in order to obtain a number of
     `QSO_HIZ' targets that matches as closely as possible the number of targets
     in the test data.
-=======
->>>>>>> parent of 0568fd8... Updated low-z rejection docs
