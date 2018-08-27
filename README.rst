@@ -53,8 +53,10 @@ selection tags for each target. The dictionary keys are as follows:
             These are made up by white dwarf, A-star and red-blue pair
             exclusion regions. See Richards et al. 2002.
 
-.. note::
+|
 
+    Note ---
+    
     The `griz` selection branch currently suffers from some uncertainty
     due to an error in the low-redshift rejection criteria as stated in
     equation 1 of `Richards et al. (2002)
