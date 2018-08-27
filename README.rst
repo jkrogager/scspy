@@ -3,6 +3,9 @@
 SCSPy
 ==============
 
+.. role:: red
+
+.. include:: <isonum.txt>
 
 This module contains the code to run the quasar color selection algorithm
 used for the Sloan Digital Sky Survey before the launch of SDSS-III (BOSS).
@@ -55,7 +58,8 @@ selection tags for each target. The dictionary keys are as follows:
 
 |
 
-    **Note**
+.. important::
+  :class: red
 
     The `griz` selection branch currently suffers from some uncertainty
     due to an error in the low-redshift rejection criteria as stated in
