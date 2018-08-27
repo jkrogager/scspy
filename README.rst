@@ -52,3 +52,17 @@ selection tags for each target. The dictionary keys are as follows:
             Boolean array of targets fulfilling the rejection criteria.
             These are made up by white dwarf, A-star and red-blue pair
             exclusion regions. See Richards et al. 2002.
+
+.. note::
+
+    The `griz` selection branch currently suffers from some uncertainty
+    due to an error in the low-redshift rejection criteria as stated in
+    equation 1 of `Richards et al. (2002)
+    <https://ui.adsabs.harvard.edu/#abs/2002AJ....123.2945R/abstract>`_.
+    The algorithm has been tested and optimized using a dataset of 10,000
+    quasars from SDSS DR7 and recovers roughly the right number of `QSO_HIZ'
+    targets from the `griz` branch. However, we caution that the criteria
+    implemented in the low-redshift rejection algorithm as part of the `griz`
+    selection are reverse-engineered in order to obtain a number of
+    `QSO_HIZ' targets that matches as closely as possible the number of targets
+    in the test data.
