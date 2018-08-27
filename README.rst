@@ -55,8 +55,8 @@ selection tags for each target. The dictionary keys are as follows:
 
 |
 
-    Note ---
-    
+    **Note**
+
     The `griz` selection branch currently suffers from some uncertainty
     due to an error in the low-redshift rejection criteria as stated in
     equation 1 of `Richards et al. (2002)
