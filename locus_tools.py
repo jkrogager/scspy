@@ -9,12 +9,15 @@ The functions related to the projection of ellipsoids are taken from
 import numpy as np
 from numpy.linalg import norm, inv, cholesky
 
+from numba import jit
+
 # basis of color-space:
 x = np.array([1, 0, 0])
 y = np.array([0, 1, 0])
 z = np.array([0, 0, 1])
 
 
+@jit
 def find_nearest_locus_point(c, O):
     """Look up the nearest locus point with minimum Euclidean distance.
 
@@ -43,6 +46,7 @@ def find_nearest_locus_point(c, O):
     return n_min
 
 
+@jit
 def project_ellipsoid_to_plane(A, k):
     """
     Project an ellipsoid given by `A` onto a plane defined by its
@@ -101,6 +105,7 @@ def project_ellipsoid_to_plane(A, k):
     return V
 
 
+@jit
 def project_ellipsoid_to_line(A, k):
     """
     Project an ellipsoid given by the matrix `A` on to a line given by the
@@ -129,6 +134,7 @@ def project_ellipsoid_to_line(A, k):
     return norm(w)
 
 
+@jit
 def project_point_to_plane(c, k, o):
     """
     Project a point in 3D `c` onto a plane given by its normal vector `k`
@@ -170,6 +176,7 @@ def project_point_to_plane(c, k, o):
     return p_ij
 
 
+@jit
 def generate_covariance_matrix(a_l, a_m, theta):
     """
     The locus cross-section at each locus point is defined as an ellipse
@@ -214,6 +221,7 @@ def generate_covariance_matrix(a_l, a_m, theta):
     return A
 
 
+@jit
 def point_in_ellipse(p, A, c=None):
     """
     Test if the given point `p` is within the ellipse (or ellipsoid) given by
@@ -245,6 +253,7 @@ def point_in_ellipse(p, A, c=None):
     return r <= 1.
 
 
+@jit
 def point_in_ellipse_old(p, A, c=0.):
     """
     Test if the given point `p` is within the ellipse (or ellipsoid) given by
