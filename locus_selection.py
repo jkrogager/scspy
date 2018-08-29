@@ -9,11 +9,14 @@ __author__ = 'Jens-Kristian Krogager'
 import numpy as np
 from os import path
 
+from numba import jit
+
 import locus_tools as lt
 
 root_path = path.dirname(path.abspath(__file__))
 
 
+@jit
 def get_color_vector(mag, err):
     """Return the 3-color vector from 4-point photometry"""
     colors = np.array([mag[i] - mag[i+1] for i in range(len(mag)-1)])
