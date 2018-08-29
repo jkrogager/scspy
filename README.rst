@@ -53,6 +53,15 @@ selection tags for each target. The dictionary keys are as follows:
             These are made up by white dwarf, A-star and red-blue pair
             exclusion regions. See Richards et al. 2002.
 
+Dependencies
+------------
+The only packages needed to run the code is numpy_ and numba_. These can be installed
+easily using pip_ or another package manager.
+
+.. _numba: https://numba.pydata.org/
+.. _numpy: http://www.numpy.org/
+.. _pip:   http://www.pip-installer.org/
+
 |
 |
 
