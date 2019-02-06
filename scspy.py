@@ -174,12 +174,12 @@ def color_selection(sample, sample_error, verbose=True):
     if np.sum(midz_qso) > 10:
         qso_subset = midz_selected[midz_qso]
         random10 = np.random.choice(len(qso_subset), len(qso_subset)/10, replace=False)
-        qso_subset[:] = 0
-        qso_subset[random10] = 1
+        qso_subset[:] = False
+        qso_subset[random10] = True
         midz_selected[midz_qso] = qso_subset
-        ugri_cand[midz_in] = midz_selected
+        ugri_cand[midz_in] += midz_selected
     else:
-        ugri_cand[midz_in] = False
+        pass
 
     # magnitude criteria 15 < i < 19.1:
     ugri_mag_cut = (i_mag > 15.0) * (i_mag < 19.1)
@@ -222,7 +222,7 @@ def color_selection(sample, sample_error, verbose=True):
     if np.sum(griz_cand*(i_mag < 19.1)*(ug < 0.8)) > 0:
         N_subset = int(len((griz_cand*(i_mag < 19.1)*(ug < 0.8)).nonzero()[0])*0.2)
         subset = np.random.choice((griz_cand*(i_mag < 19.1)*(ug < 0.8)).nonzero()[0], N_subset, replace=False)
-        griz_cand[(i_mag < 19.1)*(ug < 0.8)] = False
+        griz_cand[(i_mag < 19.1)*(ug < 0.8)] += False
         griz_cand[subset] = True
 
     ## or in gri inclusion for z>3.6; (6) of Richards et al. 2002

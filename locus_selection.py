@@ -86,7 +86,7 @@ def run_locus_selection(photometry, errors, midz=False, locus='ugri'):
             locus_pars[:, 9] /= 2.
             locus_pars[:, 10] /= 2.
             a_k /= 2.
-        N_err = 4.
+        N_err = 1.
 
     elif locus.lower() == 'griz':
         locus_pars = griz_locus_pars.copy()
@@ -143,6 +143,12 @@ def run_locus_selection(photometry, errors, midz=False, locus='ugri'):
 
         # Calculate the new angle, theta to theta':
         thetaV = np.arctan2(-2. * C_ij[1, 0], (C_ij[1, 1] - C_ij[0, 0])) / 2.
+        if thetaV < -np.pi/2:
+            thetaV += np.pi
+        elif thetaV > np.pi/2:
+            thetaV -= np.pi
+        else:
+            pass
         # thetaV = np.arctan2(l_prime[1], l_prime[0])
 
         V_k = lt.project_ellipsoid_to_line(inv_cov, k)
