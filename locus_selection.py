@@ -86,7 +86,7 @@ def run_locus_selection(photometry, errors, midz=False, locus='ugri'):
             locus_pars[:, 9] /= 2.
             locus_pars[:, 10] /= 2.
             a_k /= 2.
-        N_err = 1.
+        N_err = 4.
 
     elif locus.lower() == 'griz':
         locus_pars = griz_locus_pars.copy()

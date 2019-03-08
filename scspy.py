@@ -119,26 +119,26 @@ def color_selection(sample, sample_error, verbose=True):
     # --- EXCLUSION REGIONS:
 
     # white dwarf exclusion region:
-    WD_ex = (u_mag - g_mag > -0.8) * (u_mag - g_mag < 0.7)
-    WD_ex *= (g_mag - r_mag > -0.8) * (g_mag - r_mag < -0.1)
-    WD_ex *= (r_mag - i_mag > -0.6) * (r_mag - i_mag < -0.1)
-    WD_ex *= (i_mag - z_mag > -1.0) * (i_mag - z_mag < -0.1)
+    WD_ex = (u_mag - g_mag > -0.8) & (u_mag - g_mag < 0.7)
+    WD_ex &= (g_mag - r_mag > -0.8) & (g_mag - r_mag < -0.1)
+    WD_ex &= (r_mag - i_mag > -0.6) & (r_mag - i_mag < -0.1)
+    WD_ex &= (i_mag - z_mag > -1.0) & (i_mag - z_mag < -0.1)
 
     # A star exclusion region:
-    A_ex = (u_mag - g_mag > 0.7) * (u_mag - g_mag < 1.4)
-    A_ex *= (g_mag - r_mag > -0.5) * (g_mag - r_mag < 0.0)
-    A_ex *= (r_mag - i_mag > -0.5) * (r_mag - i_mag < 0.2)
-    A_ex *= (i_mag - z_mag > -0.4) * (i_mag - z_mag < 0.2)
+    A_ex = (u_mag - g_mag > 0.7) & (u_mag - g_mag < 1.4)
+    A_ex &= (g_mag - r_mag > -0.5) & (g_mag - r_mag < 0.0)
+    A_ex &= (r_mag - i_mag > -0.5) & (r_mag - i_mag < 0.2)
+    A_ex &= (i_mag - z_mag > -0.4) & (i_mag - z_mag < 0.2)
 
     # WD+M pair exclusion region:
-    WDM_ex = (g_mag - r_mag > -0.3) * (g_mag - r_mag < 1.25)
-    WDM_ex *= (r_mag - i_mag > 0.6) * (r_mag - i_mag < 2.0)
-    WDM_ex *= (i_mag - z_mag > 0.4) * (i_mag - z_mag < 1.2)
-    WDM_ex *= g_err < 0.2
+    WDM_ex = (g_mag - r_mag > -0.3) & (g_mag - r_mag < 1.25)
+    WDM_ex &= (r_mag - i_mag > 0.6) & (r_mag - i_mag < 2.0)
+    WDM_ex &= (i_mag - z_mag > 0.4) & (i_mag - z_mag < 1.2)
+    WDM_ex &= g_err < 0.2
 
     # Test if photometry is in exclusion region:
     reject = WD_ex + A_ex + WDM_ex
-    is_quasar = is_quasar * ~reject
+    is_quasar = is_quasar & ~reject
     # ==========================================================================
 
     # ==========================================================================
@@ -152,17 +152,17 @@ def color_selection(sample, sample_error, verbose=True):
     ugri_cand[~reject] = ~in_ugri
 
     # or in UVX box:
-    UVX = (u_err < 0.1) * (g_err < 0.1)
-    UVX *= u_mag - g_mag < 0.6
-    ugri_cand = ugri_cand + UVX*~reject
+    UVX = (u_err < 0.1) & (g_err < 0.1)
+    UVX &= (u_mag - g_mag < 0.6)
+    ugri_cand = ugri_cand | (UVX & ~reject)
 
     # or in mid-z region:
     # 2.5 < z < 3 inclusion, 2-sigma locus:
-    midz_in = (u_mag - g_mag > 0.6) * (u_mag - g_mag < 1.5)
-    midz_in *= (g_mag - r_mag > 0.0) * (g_mag - r_mag < 0.2)
-    midz_in *= (r_mag - i_mag > -0.1) * (r_mag - i_mag < 0.4)
-    midz_in *= (i_mag - z_mag > -0.1) * (i_mag - z_mag < 0.4)
-    midz_in *= ~reject
+    midz_in = (u_mag - g_mag > 0.6) & (u_mag - g_mag < 1.5)
+    midz_in &= (g_mag - r_mag > 0.0) & (g_mag - r_mag < 0.2)
+    midz_in &= (r_mag - i_mag > -0.1) & (r_mag - i_mag < 0.4)
+    midz_in &= (i_mag - z_mag > -0.1) & (i_mag - z_mag < 0.4)
+    midz_in &= ~reject
 
     in_2sig_ugri = run_locus_selection(ugri_points[midz_in], ugri_errors[midz_in],
                                        midz=True, locus='ugri')
@@ -177,13 +177,13 @@ def color_selection(sample, sample_error, verbose=True):
         qso_subset[:] = False
         qso_subset[random10] = True
         midz_selected[midz_qso] = qso_subset
-        ugri_cand[midz_in] += midz_selected
+        ugri_cand[midz_in] |= midz_selected
     else:
         pass
 
     # magnitude criteria 15 < i < 19.1:
-    ugri_mag_cut = (i_mag > 15.0) * (i_mag < 19.1)
-    ugri_cand_magcut = ugri_cand * ugri_mag_cut
+    ugri_mag_cut = (i_mag > 15.0) & (i_mag < 19.1)
+    ugri_cand_magcut = ugri_cand & ugri_mag_cut
 
     # ==========================================================================
     #     GRIZ SELECTION:
@@ -209,20 +209,20 @@ def color_selection(sample, sample_error, verbose=True):
     # lowz_rej *= low_rej1
 
     ## Reconstruction from color-color space:
-    lowz_rej1 = (u_mag - g_mag <= 0.6) * (g_mag - r_mag > 0.5*(u_mag - g_mag) + 0.15) * (g_mag - r_mag < 1.0)
-    lowz_rej3 = (u_mag - g_mag <= 0.6) * (i_mag >= 19.1) * (g_mag - r_mag < 1.0)
-    lowz_rej = lowz_rej1 + lowz_rej3
+    lowz_rej1 = (u_mag - g_mag <= 0.6) & (g_mag - r_mag > 0.5*(u_mag - g_mag) + 0.15) & (g_mag - r_mag < 1.0)
+    lowz_rej3 = (u_mag - g_mag <= 0.6) & (i_mag >= 19.1) & (g_mag - r_mag < 1.0)
+    lowz_rej = lowz_rej1 | lowz_rej3
 
-    griz_cand = griz_cand * ~lowz_rej
+    griz_cand = griz_cand & ~lowz_rej
 
     ## The only way to get the right number of targets
     ## is through randomly discarding targets:
     ## Only select 1 in 5:
     ug = u_mag - g_mag
-    if np.sum(griz_cand*(i_mag < 19.1)*(ug < 0.8)) > 0:
-        N_subset = int(len((griz_cand*(i_mag < 19.1)*(ug < 0.8)).nonzero()[0])*0.2)
-        subset = np.random.choice((griz_cand*(i_mag < 19.1)*(ug < 0.8)).nonzero()[0], N_subset, replace=False)
-        griz_cand[(i_mag < 19.1)*(ug < 0.8)] += False
+    if np.sum(griz_cand & (i_mag < 19.1) & (ug < 0.6)) > 0:
+        N_subset = int(len((griz_cand & (i_mag < 19.1) & (ug < 0.8)).nonzero()[0])*0.2)
+        subset = np.random.choice((griz_cand & (i_mag < 19.1) & (ug < 0.8)).nonzero()[0], N_subset, replace=False)
+        griz_cand[(i_mag < 19.1) & (ug < 0.6)] = False
         griz_cand[subset] = True
 
     ## or in gri inclusion for z>3.6; (6) of Richards et al. 2002
